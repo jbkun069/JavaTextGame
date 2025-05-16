@@ -105,9 +105,9 @@ public class Game {
 
         // Apply health changes
         if (nextNode.equals("eat_berries")) {
-            gameState.modifyHealth(-20);
+            gameState.modifyHealth(-15);
         } else if (nextNode.equals("fight_wolf")) {
-            gameState.modifyHealth(-30);
+            gameState.modifyHealth(-50);
         }
 
         if (gameState.getHealth() <= 0) {
