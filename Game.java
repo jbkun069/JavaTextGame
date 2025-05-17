@@ -27,35 +27,35 @@ public class Game {
     private static void initializeStory() {
         STORY.put("start", new StoryNode.Builder()
                 .text("You wake up in a dark forest.")
-                .option("look_around", "1) Look around")
-                .option("call_help", "2) Call for help")
+                .option("look_around", "Look around", 0)
+                .option("call_help", "Call for help", 0)
                 .build());
 
         STORY.put("look_around", new StoryNode.Builder()
                 .text("You see berries. Some look poisonous.")
-                .option("eat_berries", "1) Eat the berries")
-                .option("ignore_berries", "2) Ignore them")
+                .option("eat_berries", "Eat the berries", -20)
+                .option("ignore_berries", "Ignore them", 0)
                 .build());
 
         STORY.put("call_help", new StoryNode.Builder()
                 .text("A wolf appears!")
-                .option("fight_wolf", "1) Fight the wolf")
-                .option("run_away", "2) Run away")
+                .option("fight_wolf", "Fight the wolf", -50)
+                .option("run_away", "Run away", 0)
                 .build());
 
         STORY.put("ignore_berries", new StoryNode.Builder()
                 .text("You walk past the berries and find a safe path.")
-                .option("good_ending", "1) Continue")
+                .option("good_ending", "Continue", 0)
                 .build());
 
         STORY.put("fight_wolf", new StoryNode.Builder()
                 .text("You fight bravely but get injured.")
-                .option("good_ending", "1) Continue")
+                .option("good_ending", "Continue", 0)
                 .build());
 
         STORY.put("run_away", new StoryNode.Builder()
                 .text("You escape the wolf unharmed.")
-                .option("good_ending", "1) Continue")
+                .option("good_ending", "Continue", 0)
                 .build());
 
         STORY.put("eat_berries", new StoryNode.Builder()
@@ -96,19 +96,16 @@ public class Game {
             return;
         }
 
-        for (String option : node.getOptionsText()) {
-            System.out.println(option);
+        // Display options with dynamically generated numbers
+        String[] optionsText = node.getOptionsText();
+        for (int i = 0; i < optionsText.length; i++) {
+            System.out.println((i + 1) + ") " + optionsText[i]);
         }
 
-        int choice = getValidChoice(node.getOptions().length, scanner);
+        int choice = getValidChoice(optionsText.length, scanner);
         String nextNode = node.getOptions()[choice - 1];
-
-        // Apply health changes
-        if (nextNode.equals("eat_berries")) {
-            gameState.modifyHealth(-20);
-        } else if (nextNode.equals("fight_wolf")) {
-            gameState.modifyHealth(-50);
-        }
+        int healthDelta = node.getHealthDeltas()[choice - 1];
+        gameState.modifyHealth(healthDelta);
 
         if (gameState.getHealth() <= 0) {
             System.out.println("\nYour health dropped to 0! GAME OVER");
@@ -125,19 +122,16 @@ public class Game {
     private static int getValidChoice(int max, Scanner scanner) {
         while (true) {
             System.out.print("Choose (1-" + max + "): ");
+            String input = scanner.nextLine().trim();
             try {
-                if (scanner.hasNextInt()) {
-                    int choice = scanner.nextInt();
-                    if (choice >= 1 && choice <= max) {
-                        scanner.nextLine(); // Clear buffer
-                        return choice;
-                    }
+                int choice = Integer.parseInt(input);
+                if (choice >= 1 && choice <= max) {
+                    return choice;
+                } else {
+                    System.out.println("Invalid choice! Please enter a number between 1 and " + max + ".");
                 }
-                System.out.println("Invalid input! Please enter a number between 1 and " + max + ".");
-                scanner.nextLine(); // Clear invalid input
-            } catch (Exception e) {
-                System.out.println("Error reading input. Please try again.");
-                scanner.nextLine(); // Clear buffer
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a number.");
             }
         }
     }
